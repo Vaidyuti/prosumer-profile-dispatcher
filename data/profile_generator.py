@@ -56,11 +56,12 @@ storages:
     """.strip()
 
 
-def generate_profile(base_profile: dict[str, any]) -> str:
+def generate_profile(base_profile: dict[str, any], vp_address: str) -> str:
     return (
         "\n\n".join(
             [
                 f"# This file was auto-generated on {datetime.datetime.now()}. Do not modify by hand.",
+                f"vp_address: {vp_address}",
                 generate_profile_locations(base_profile),
                 generate_profile_generations(base_profile),
                 generate_profile_consumptions(base_profile),
@@ -73,11 +74,9 @@ def generate_profile(base_profile: dict[str, any]) -> str:
 
 def main():
     """Run profile generator"""
-    profiles_to_generate = 10
-    base_profile = get_base_profile()
-    profiles = [generate_profile(base_profile) for _ in range(profiles_to_generate)]
-    for index, profile in enumerate(profiles):
-        path = f"profiles/p{index}.yaml"
+    profiles = [generate_profile(get_base_profile(), i + 1000) for i in range(10)]
+    for i, profile in enumerate(profiles):
+        path = f"profiles/p{i}.yaml"
         stdout.write(f"Writing '{path}'...")
         with open(path, "w") as file:
             file.write(profile)
