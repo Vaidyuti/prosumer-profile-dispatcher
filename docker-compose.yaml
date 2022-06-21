@@ -1,17 +1,29 @@
 version: '3.9'
 
+networks:
+  prosumers:
+    name: prosumers
+    external: true
+  dispatcher:
+    name: dispatcher
+
 services:
   redis:
-    container_name: redis
     image: redis:latest
     ports:
       - 6379:6379
+    networks:
+      - dispatcher
 
-  app:
-    container_name: dispatcher
+  dispatcher:
     build: .
     environment:
       REDIS_URL: redis://redis:6379
     command: uvicorn main:app --host 0.0.0.0 --port 80
     volumes:
       - .:/app
+    depends_on:
+      - redis
+    networks:
+      - prosumers
+      - dispatcher
