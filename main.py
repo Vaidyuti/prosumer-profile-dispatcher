@@ -46,3 +46,8 @@ async def rehydrate():
         redis.set(key, profile)
     redis.set("hydration-states", json.dumps(hydration_states))
     return hydration_states
+
+
+@app.on_event("startup")
+async def startup_event():
+    await rehydrate()
