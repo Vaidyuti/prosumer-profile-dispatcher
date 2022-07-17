@@ -1,0 +1,36 @@
+vp_address: 1000
+
+locations:
+  - 11.877, 75.51
+  - 11.877, 75.52
+  - 11.877, 75.53
+  - 11.877, 75.54
+
+category: MUNCIPAL
+# Available choices:
+#   - RESIDENTIAL
+#   - COMMERCIAL
+#   - INDUSTRIAL
+#   - AGGRICULTURAL
+#   - MUNCIPAL
+#   - MICROGRID
+
+category_meta:
+  # meta information related to the category
+
+  type: STREET_LIGHT
+
+  control_api_endpoint: true
+  # whether to enable api based lighting controls.
+
+  fixture_installed_power: 0.25
+  # the kW consumed by the fixture when running at 100% brightness.
+
+  pv_capacity: 0.04
+  # the installed capacity of the solar PV panel in kW.
+
+  storage_capacity: 0.0256
+  # the installed storage capacity in kWh.
+
+  on_time: 18:00
+  off_time: 6:00
