@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from datetime import datetime, timezone
 import json
 import os
 from fastapi import FastAPI, Response
@@ -5,6 +7,16 @@ from redis import Redis
 
 app = FastAPI()
 redis = Redis.from_url(os.environ.get("REDIS_URL"))
+
+
+@app.get("/api/environment/solar")
+async def solar_now():
+    solar_estimates = json.loads(redis.get("solar-estimates"))
+    time = datetime.now().time()
+    now = str(datetime(2022, 7, 11, time.hour, (time.minute // 30) * 30))
+    return {
+        "pv_estimate": solar_estimates[now],
+    }
 
 
 def load_profiles() -> dict[str, str]:
@@ -15,6 +27,21 @@ def load_profiles() -> dict[str, str]:
             with open(os.path.join(path, file), "r", encoding="utf-8") as f:
                 profiles[file] = f.read()
     return profiles
+
+
+def load_solar():
+    import csv
+    from dateutil import parser
+
+    estimates: dict[datetime, float] = {}
+    with open("data/environment/solar/estimated_actuals.csv") as file:
+        reader = csv.reader(file)
+        next(reader)  # ignore the header
+        for row in reader:
+            pv_estimate = float(row[0])
+            period_end = parser.parse(row[1]).replace(tzinfo=None)
+            estimates[str(period_end)] = pv_estimate
+    redis.set("solar-estimates", json.dumps(estimates))
 
 
 @app.get("/api/retrieve")
@@ -50,4 +77,5 @@ async def rehydrate():
 
 @app.on_event("startup")
 async def startup_event():
+    load_solar()
     await rehydrate()
